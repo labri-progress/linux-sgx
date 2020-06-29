@@ -1,0 +1,7 @@
+{
+  "bundle.symbolic_name" : "custom_quote_service_symbolic_name",
+  "bundle.activator" : true,
+  "bundle.name" : "Custom Quote Service",
+  "bundle.description" : "This bundle provides Custom Quote Service",
+  "bundle.version" : "2.0.0"
+}
