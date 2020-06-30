@@ -14,6 +14,8 @@
 #include "cppmicroservices_util.h"
 #include "sgx_pce.h"
 
+#include "QEClass.h"
+
 using namespace cppmicroservices;
 std::shared_ptr<IPceService> g_pce_service;
 static AESMLogicMutex custom_quote_mutex;
@@ -240,12 +242,23 @@ public:
         uint8_t *target_info, uint32_t target_info_size,
         uint8_t *pub_key_id, size_t *pub_key_id_size)
     {
-        AESM_LOG_WARN("init_quote_ex");
         AESM_DBG_INFO("init_quote_ex");
         if (false == initialized)
             return AESM_SERVICE_UNAVAILABLE;
 
         *pub_key_id_size = 1;
+
+        ae_error_t ae_ret = AE_SUCCESS;
+        if((ae_ret = CQEClass::instance().load_enclave())!=AE_SUCCESS)
+        {
+            AESM_DBG_ERROR("Fail to load QE:(ae%d)",ae_ret);
+            return AESM_UNEXPECTED_ERROR;
+        }
+
+        sgx_isv_svn_t p_isvsvn;
+        ae_ret = static_cast<ae_error_t>(CQEClass::instance().get_qe_target((sgx_target_info_t*) target_info, &p_isvsvn));
+        if(ae_ret != AE_SUCCESS)
+            return AESM_UNEXPECTED_ERROR;
 
         return AESM_SUCCESS;
     }
@@ -254,7 +267,6 @@ public:
         const uint8_t *att_key_id_ext, uint32_t att_key_id_ext_size,
         uint32_t *quote_size)
     {
-        AESM_LOG_WARN("get_quote_size_ex");
         AESM_DBG_INFO("get_quote_size_ex");
         if (false == initialized)
             return AESM_SERVICE_UNAVAILABLE;
@@ -270,7 +282,6 @@ public:
         uint8_t *qe_report_info, uint32_t qe_report_info_size,
         uint8_t *quote, uint32_t quote_size)
     {
-        AESM_LOG_WARN("get_quote_ex");
         AESM_DBG_INFO("get_quote_ex");
         if (false == initialized)
             return AESM_SERVICE_UNAVAILABLE;
@@ -282,10 +293,29 @@ public:
 
         sgx_quote3_t *q = (sgx_quote3_t*) quote;
 		if (memcpy_s(&q->report_body, sizeof(sgx_report_body_t), app_report, sizeof(sgx_report_body_t))) {
-            AESM_LOG_WARN("error here");
             AESM_LOG_WARN("%d and %d", sizeof(sgx_report_body_t), app_report_size);
 			return AESM_UNEXPECTED_ERROR;
 		}
+
+        ae_error_t ae_ret = AE_SUCCESS;
+        if((ae_ret = CQEClass::instance().load_enclave())!=AE_SUCCESS)
+        {
+            AESM_DBG_ERROR("Fail to load QE:(ae%d)",ae_ret);
+            return AESM_UNEXPECTED_ERROR;
+        }
+
+        sgx_att_key_id_ext_t *p_att_key_id_ext = (sgx_att_key_id_ext_t *)att_key_id_ext;
+        sgx_qe_report_info_t *p_qe_report_info = (sgx_qe_report_info_t *)qe_report_info;
+
+        if((ae_ret = (ae_error_t) CQEClass::instance().get_quote(
+            (const sgx_report_t*) app_report,
+            (sgx_qe_report_info_t *)qe_report_info,
+            quote,
+            quote_size))!=AE_SUCCESS)
+        {
+            AESM_DBG_ERROR("Fail to get quote:(ae%d)",ae_ret);
+            return AESM_UNEXPECTED_ERROR;
+        }
 
         return AESM_SUCCESS;
     }

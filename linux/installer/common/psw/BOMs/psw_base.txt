@@ -22,6 +22,7 @@ DeliveryName	InstallName	FileCheckSum	FileFeature	FileOwner
 <deliverydir>/build/linux/le_prod_css.bin	<installdir>/package/aesm/le_prod_css.bin	0	main	STP
 <deliverydir>/build/linux/libsgx_le.signed.so	<installdir>/package/aesm/libsgx_le.signed.so	0	main	STP
 <deliverydir>/build/linux/libsgx_pve.signed.so	<installdir>/package/aesm/libsgx_pve.signed.so	0	main	STP
+<deliverydir>/build/linux/libsgx_customqe.signed.so	<installdir>/package/aesm/libsgx_customqe.signed.so	0	main	STP
 <deliverydir>/build/linux/libsgx_qe.signed.so	<installdir>/package/aesm/libsgx_qe.signed.so	0	main	STP
 <deliverydir>/build/linux/libsgx_pce.signed.so	<installdir>/package/aesm/libsgx_pce.signed.so	0	main	STP
 <deliverydir>/build/linux/libsgx_qe3.signed.so	<installdir>/package/aesm/libsgx_qe3.signed.so	0	main	STP

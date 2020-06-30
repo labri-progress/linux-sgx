@@ -1,9 +1,11 @@
 set(qe3_logic "${CMAKE_SOURCE_DIR}/../../../../external/dcap_source/QuoteGeneration/build/linux/libsgx_qe3_logic.so")
+set(Edger8rOutputCustomQE "${CMAKE_CURRENT_BINARY_DIR}/custom_quoting_enclave_u.c")
+
 get_filename_component(bundle ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 aux_source_directory(. _src)
 link_directories(${CMAKE_SOURCE_DIR}/../../../../build/linux
                  ${CMAKE_SOURCE_DIR}/../../../../external/dcap_source/QuoteGeneration/build/linux)
-CreateBundle(${bundle} ${_src})
+CreateBundle(${bundle} ${_src} ${Edger8rOutputCustomQE})
 
 target_include_directories(${bundle} PRIVATE
 	${PROJECT_SOURCE_DIR}/common
@@ -25,6 +27,12 @@ add_custom_command(OUTPUT ${qe3_logic}
     COMMAND make all
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/../../../../external/dcap_source/QuoteGeneration/quote_wrapper/quote/linux"
 )
+add_custom_command(
+    OUTPUT ${Edger8rOutputCustomQE}
+    COMMAND ${EDGER8R} --untrusted --untrusted-dir ${CMAKE_CURRENT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/../../customqe/custom_quoting_enclave.edl --search-path ${SGX_HEADER_DIR}
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+)
+
 target_link_libraries(${bundle} ${qe3_logic} oal utils urts_internal)
 add_dependencies(${bundle} qe3_logic_lib)
 set_property(TARGET ${bundle} APPEND_STRING PROPERTY LINK_FLAGS " -Wl,-z,defs")

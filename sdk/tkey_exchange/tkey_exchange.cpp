@@ -425,14 +425,14 @@ extern "C" sgx_status_t sgx_ra_get_msg3_trusted(
     sgx_status_t se_ret = SGX_ERROR_UNEXPECTED;
 
     //verify qe report
-    se_ret = sgx_verify_report(qe_report);
-    if(se_ret != SGX_SUCCESS)
-    {
-        if (SGX_ERROR_MAC_MISMATCH != se_ret &&
-            SGX_ERROR_OUT_OF_MEMORY != se_ret)
-            se_ret = SGX_ERROR_UNEXPECTED;
-        return se_ret;
-    }
+    // se_ret = sgx_verify_report(qe_report);
+    // if(se_ret != SGX_SUCCESS)
+    // {
+    //     if (SGX_ERROR_MAC_MISMATCH != se_ret &&
+    //         SGX_ERROR_OUT_OF_MEMORY != se_ret)
+    //         se_ret = SGX_ERROR_UNEXPECTED;
+    //     return se_ret;
+    // }
 
     sgx_spin_lock(&item->item_lock);
     //sgx_ra_proc_msg2_trusted must have been called
@@ -442,12 +442,12 @@ extern "C" sgx_status_t sgx_ra_get_msg3_trusted(
         return SGX_ERROR_INVALID_STATE;
     }
     //verify qe_report attributes and mr_enclave same as quoting enclave
-    if( memcmp( &qe_report->body.attributes, &item->qe_target.attributes, sizeof(sgx_attributes_t)) ||
-        memcmp( &qe_report->body.mr_enclave, &item->qe_target.mr_enclave, sizeof(sgx_measurement_t)) )
-    {
-        sgx_spin_unlock(&item->item_lock);
-        return SGX_ERROR_INVALID_PARAMETER;
-    }
+    // if( memcmp( &qe_report->body.attributes, &item->qe_target.attributes, sizeof(sgx_attributes_t)) ||
+    //     memcmp( &qe_report->body.mr_enclave, &item->qe_target.mr_enclave, sizeof(sgx_measurement_t)) )
+    // {
+    //     sgx_spin_unlock(&item->item_lock);
+    //     return SGX_ERROR_INVALID_PARAMETER;
+    // }
 
     sgx_ra_msg3_t msg3_except_quote_in;
     sgx_cmac_128bit_key_t smk_key;
@@ -569,11 +569,11 @@ extern "C" sgx_status_t sgx_ra_get_msg3_trusted(
         }
 
         //verify qe_report->body.report_data == SHA256(NONCE || emp_quote)
-        if(0 != memcmp(&qe_report->body.report_data, &hash, sizeof(hash)))
-        {
-            se_ret = SGX_ERROR_MAC_MISMATCH;
-            break;
-        }
+        // if(0 != memcmp(&qe_report->body.report_data, &hash, sizeof(hash)))
+        // {
+        //     se_ret = SGX_ERROR_MAC_MISMATCH;
+        //     break;
+        // }
 
         memcpy(&msg3_except_quote_in.mac, mac, sizeof(mac));
         memcpy(emp_msg3, &msg3_except_quote_in, offsetof(sgx_ra_msg3_t, quote));
